@@ -1,0 +1,247 @@
+import java.util.*;
+
+class Book {
+    private String title;
+    private String author;
+    private int id;
+    private boolean available;
+
+    public Book(String title, String author, int id) {
+        this.title = title;
+        this.author = author;
+        this.id = id;
+        this.available = true;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
+    }
+}
+
+class Patron {
+    private String name;
+    private int id;
+
+    public Patron(String name, int id) {
+        this.name = name;
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getId() {
+        return id;
+    }
+}
+
+class BorrowRecord {
+    private Book book;
+    private Patron patron;
+    private Date borrowDate;
+    private Date returnDate;
+    private double fine;
+
+    public BorrowRecord(Book book, Patron patron) {
+        this.book = book;
+        this.patron = patron;
+        this.borrowDate = new Date();
+        this.fine = 0.0;
+    }
+
+    public Book getBook() {
+        return book;
+    }
+
+    public Patron getPatron() {
+        return patron;
+    }
+
+    public Date getBorrowDate() {
+        return borrowDate;
+    }
+
+    public Date getReturnDate() {
+        return returnDate;
+    }
+
+    public void setReturnDate(Date returnDate) {
+        this.returnDate = returnDate;
+    }
+
+    public double getFine() {
+        return fine;
+    }
+
+    public void setFine(double fine) {
+        this.fine = fine;
+    }
+}
+
+class Library {
+    private List<Book> books;
+    private List<Patron> patrons;
+    private List<BorrowRecord> borrowRecords;
+
+    public Library() {
+        books = new ArrayList<>();
+        patrons = new ArrayList<>();
+        borrowRecords = new ArrayList<>();
+    }
+
+    public void addBook(Book book) {
+        books.add(book);
+    }
+
+    public void addPatron(Patron patron) {
+        patrons.add(patron);
+    }
+
+    public void borrowBook(Book book, Patron patron) {
+        if (!book.isAvailable()) {
+            System.out.println("Book is not available for borrowing.");
+            return;
+        }
+
+        book.setAvailable(false);
+        borrowRecords.add(new BorrowRecord(book, patron));
+        System.out.println("Book borrowed successfully.");
+    }
+
+    public void returnBook(Book book) {
+        for (BorrowRecord record : borrowRecords) {
+            if (record.getBook().getId() == book.getId() && record.getReturnDate() == null) {
+                record.setReturnDate(new Date());
+                book.setAvailable(true);
+                System.out.println("Book returned successfully.");
+                return;
+            }
+        }
+        System.out.println("Book not found in borrow records.");
+    }
+
+    public void calculateFine(BorrowRecord record, Date currentDate) {
+        long diffInMillis = currentDate.getTime() - record.getReturnDate().getTime();
+        long diffInDays = diffInMillis / (1000 * 60 * 60 * 24);
+        if (diffInDays > 0) {
+            double fine = diffInDays * 0.5; // Example fine calculation, can be adjusted
+            record.setFine(fine);
+        }
+    }
+
+    public List<Book> searchBooks(String keyword) {
+        List<Book> result = new ArrayList<>();
+        for (Book book : books) {
+            if (book.getTitle().contains(keyword) || book.getAuthor().contains(keyword)) {
+                result.add(book);
+            }
+        }
+        return result;
+    }
+
+    public List<Patron> searchPatrons(String keyword) {
+        List<Patron> result = new ArrayList<>();
+        for (Patron patron : patrons) {
+            if (patron.getName().contains(keyword)) {
+                result.add(patron);
+            }
+        }
+        return result;
+    }
+
+    public List<BorrowRecord> getBorrowRecords() {
+        return borrowRecords;
+    }
+}
+class LibraryManagementSystem {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        Library library = new Library();
+
+        while (true) {
+            System.out.println("\nLibrary Management System");
+            System.out.println("1. Add Book");
+            System.out.println("2. Add Patron");
+            System.out.println("3. Borrow Book");
+            System.out.println("4. Return Book");
+            System.out.println("5. Search Books");
+            System.out.println("6. Search Patrons");
+            System.out.println("7. Generate Reports");
+            System.out.println("8. Exit");
+            System.out.print("Enter your choice: ");
+
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Consume newline character
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter book title: ");
+                    String bookTitle = scanner.nextLine();
+                    System.out.print("Enter author name: ");
+                    String author = scanner.nextLine();
+                    System.out.print("Enter book ID: ");
+                    int bookId = scanner.nextInt();
+                    scanner.nextLine(); // Consume newline character
+                    Book newBook = new Book(bookTitle, author, bookId);
+                    library.addBook(newBook);
+                    System.out.println("Book added successfully.");
+                    break;
+                case 2:
+                    System.out.print("Enter patron name: ");
+                    String patronName = scanner.nextLine();
+                    System.out.print("Enter patron ID: ");
+                    int patronId = scanner.nextInt();
+                    scanner.nextLine(); // Consume newline character
+                    Patron newPatron = new Patron(patronName, patronId);
+                    library.addPatron(newPatron);
+                    System.out.println("Patron added successfully.");
+                    break;
+                case 3:
+                    // Implement borrowing book functionality
+                    break;
+                case 4:
+                    // Implement returning book functionality
+                    break;
+                case 5:
+                    System.out.print("Enter search keyword: ");
+                    String searchKeyword = scanner.nextLine();
+                    List<Book> searchResult = library.searchBooks(searchKeyword);
+                    System.out.println("Search results:");
+                    for (Book book : searchResult) {
+                        System.out.println("Title: " + book.getTitle() + ", Author: " + book.getAuthor());
+                    }
+                    break;
+                case 6:
+                    // Implement search patrons functionality
+                    break;
+                case 7:
+                    // Implement generate reports functionality
+                    break;
+                case 8:
+                    System.out.println("Exiting Library Management System. Goodbye!");
+                    scanner.close();
+                    System.exit(0);
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please enter a valid option.");
+            }
+        }
+    }
+}
